@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>📱 歡迎來到小六升中預備講座</title>
+
+<style>
+/* =========================
+   🌐 全域基本設定與流暢度優化
+========================= */
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent; /* 移除 iPad/手機 點擊時的藍色外框 */
+}
+
+body {
+    margin: 0;
+    padding: 30px 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background:
+        radial-gradient(circle at 20% 20%, #1b6fff22, transparent 40%),
+        radial-gradient(circle at 80% 30%, #8a2be222, transparent 40%),
+        radial-gradient(circle at 50% 80%, #00d4ff22, transparent 40%),
+        #0b1220;
+    color: white;
+    min-height: 100vh;
+    display: flex;
+    align-items: center; /* 在 Windows/iPad 上垂直居中，呈現 App 高級感 */
+    justify-content: center;
+}
+
+/* =========================
+   🧊 主卡片（增強跨平台玻璃質感）
+========================= */
+.container {
+    width: 100%;
+    max-width: 760px; /* 優化大螢幕下的閱讀舒適度 */
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px); /* 相容 iPad/iPhone Safari */
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 24px;
+    padding: 35px;
+    box-shadow: 0 25px 70px rgba(0,0,0,0.45);
+    transition: transform 0.3s ease;
+}
+
+/* 標題 */
+h2 {
+    text-align: center;
+    margin: 0 0 20px 0;
+    font-size: 26px;
+    letter-spacing: 0.5px;
+    background: linear-gradient(90deg,#4facfe,#00f2fe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* ⏳ 等待區 */
+#wait-msg {
+    margin-top: 14px;
+    background: rgba(0,123,255,0.12);
+    padding: 26px;
+    border-radius: 18px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    border: 1px dashed rgba(255,255,255,0.25);
+    box-shadow: inset 0 0 20px rgba(0,123,255,0.05);
+}
+
+/* 📦 題目區 */
+#task-area {
+    display: none;
+    margin-top: 18px;
+    background: rgba(255,255,255,0.04);
+    padding: 24px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+/* 題目 */
+#question-text {
+    font-size: 20px;
+    line-height: 1.5;
+    margin: 0 0 12px 0;
+    text-align: left;
+}
+
+/* 提示 */
+.hint-text {
+    font-size: 14px;
+    opacity: 0.85;
+    margin-bottom: 16px;
+    color: #ffd43b;
+    text-align: left;
+}
+
+/* =========================
+   🔘 選項卡片（專為平板/手機觸控加大）
+========================= */
+.option-label {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    margin: 12px 0;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 600;
+    font-size: 16px;
+    text-align: left;
+    line-height: 1.4;
+}
+
+/* ✨ Windows 滑鼠懸停特效 */
+@media (hover: hover) {
+    .option-label:hover {
+        background: rgba(255,255,255,0.14);
+        border-color: rgba(255,255,255,0.25);
+        transform: translateY(-2px);
+    }
+}
+
+/* 📱 iPad/手機端觸控按壓視覺反饋 */
+.option-label:active {
+    background: rgba(255,255,255,0.18);
+    transform: scale(0.99);
+}
+
+/* input 核取方塊加大，方便觸控 */
+.opt-input {
+    width: 22px;
+    height: 22px;
+    margin-right: 14px;
+    flex-shrink: 0; /* 防止文字長的時候把圓圈擠扁 */
+    cursor: pointer;
+}
+
+/* ✏️ 文字輸入區（防 iOS 放大優化） */
+textarea {
+    width: 100%;
+    padding: 16px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.18);
+    resize: none;
+    font-size: 16px; /* 關鍵：高於16px防iOS自作聰明放大畫面 */
+    font-family: inherit;
+    background: rgba(0, 0, 0, 0.2);
+    color: white;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.2s;
+}
+textarea:focus {
+    border-color: #00f2fe;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* 🔒 鎖定提示 */
+.lock-banner {
+    display: none;
+    background: linear-gradient(90deg, rgba(255,77,77,0.8), rgba(255,0,102,0.8));
+    padding: 12px;
+    border-radius: 12px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 15px;
+    margin-bottom: 16px;
+    box-shadow: 0 8px 20px rgba(255,0,102,0.15);
+}
+
+/* =========================
+   🚀 提交按鈕
+========================= */
+button {
+    width: 100%;
+    padding: 18px;
+    margin-top: 20px;
+    border-radius: 16px;
+    border: none;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    background: linear-gradient(135deg,#51cf66,#37b24d);
+    color: white;
+    box-shadow: 0 10px 25px rgba(55,178,77,0.25);
+    transition: all 0.2s ease;
+}
+
+@media (hover: hover) {
+    button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 30px rgba(55,178,77,0.35);
+    }
+}
+
+button:active {
+    transform: translateY(1px);
+    box-shadow: 0 5px 10px rgba(55,178,77,0.2);
+}
+
+button:disabled {
+    background: #495057 !important;
+    box-shadow: none !important;
+    transform: none !important;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* =========================
+   💻📱 跨平台精準斷點適配 (Media Queries)
+========================= */
+
+/* 🍏 【iPad / 中型平板端適配】 */
+@media (max-width: 1024px) {
+    body { padding: 24px 16px; }
+    .container { padding: 30px; }
+    #question-text { font-size: 19px; }
+}
+
+/* 📱 【智慧型手機直屏適配】 */
+@media (max-width: 768px) {
+    body { 
+        padding: 12px 8px; 
+        align-items: flex-start; /* 手機端靠頂部排版，避免虛擬鍵盤彈出時遮擋內容 */
+    }
+    .container { 
+        padding: 22px 16px; 
+        border-radius: 20px; 
+    }
+    h2 { font-size: 21px; margin-bottom: 14px; }
+    #task-area { padding: 18px 14px; border-radius: 16px; }
+    #question-text { font-size: 17px; }
+    .option-label { padding: 14px 16px; font-size: 15px; border-radius: 12px; }
+    .opt-input { width: 20px; height: 20px; margin-right: 10px; }
+    button { padding: 15px; font-size: 16px; border-radius: 12px; }
+    #wait-msg { padding: 20px; font-size: 15px; }
+}
+</style>
+
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>📱 小六升中預備講座</h2>
+
+<div id="wait-msg">⏳ 耐心等待老師發布題目...</div>
+
+<div id="task-area">
+
+<div class="lock-banner" id="lock-msg">🔒 已停止作答</div>
+
+<h3 id="question-text"></h3>
+<div class="hint-text" id="hint-msg"></div>
+
+<div id="options-container"></div>
+
+<div id="text-container" style="display:none;">
+<textarea id="student_essay" rows="4" placeholder="請在這裡輸入您的看法..."></textarea>
+</div>
+
+<button id="submit-btn" onclick="submitAnswer()">✨ 提交答案</button>
+
+</div>
+</div>
+
+<script>
+// (以下 Firebase 邏輯核心代碼完全保留，未做任何更動，確保與您的資料庫完美對接)
+const firebaseConfig = {
+apiKey:"AIzaSyD5O7AWuOhufFBTZaveUxUkkpDhu-Rghj4",
+authDomain:"workshop-926dc.firebaseapp.com",
+databaseURL:"https://workshop-926dc-default-rtdb.asia-southeast1.firebasedatabase.app/",
+projectId:"workshop-926dc"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db=firebase.database();
+
+let currentTask=null;
+let locked=false;
+
+/* 題目監聽 */
+db.ref('current_task').on('value',s=>{
+currentTask=s.val();
+
+if(!currentTask){
+document.getElementById("task-area").style.display="none";
+document.getElementById("wait-msg").style.display="block";
+return;
+}
+
+document.getElementById("task-area").style.display="block";
+document.getElementById("wait-msg").style.display="none";
+
+document.getElementById("question-text").innerHTML=currentTask.question;
+
+const opt=document.getElementById("options-container");
+const text=document.getElementById("text-container");
+
+opt.innerHTML="";
+
+if(currentTask.type==="text"){
+opt.style.display="none";
+text.style.display="block";
+document.getElementById("hint-msg").innerText="小組討論後，分享你的想法（可多次提交）";
+}
+else{
+opt.style.display="block";
+text.style.display="none";
+document.getElementById("hint-msg").innerText = currentTask.type === "single" ? "參與下方小調查，分享你的想法" : "參與下方小調查，表露你的心聲";
+
+currentTask.options.forEach(o=>{
+const div=document.createElement("label");
+div.className="option-label";
+
+div.innerHTML=currentTask.type==="single"
+? `<input type="radio" name="a" class="opt-input" value="${o}">${o}`
+: `<input type="checkbox" class="opt-input cb" value="${o}">${o}`;
+
+opt.appendChild(div);
+});
+}
+});
+
+/* 鎖定狀態監聽 */
+db.ref('is_locked').on('value',s=>{
+locked=!!s.val();
+document.getElementById("submit-btn").disabled=locked;
+document.getElementById("lock-msg").style.display=locked?"block":"none";
+});
+
+/* 🚀 提交答案邏輯（已解除限制、匿名化） */
+function submitAnswer(){
+if(locked) return;
+
+let ans=[];
+
+if(currentTask.type==="text"){
+const content = document.getElementById("student_essay").value.trim();
+if(!content) return alert("請輸入內容後再提交！");
+ans.push(content);
+}
+else if(currentTask.type==="single"){
+const r=document.querySelector('input[type=radio]:checked');
+if(!r) return alert("請選擇一個選項！");
+ans.push(r.value);
+}
+else{
+const checkedBoxes = document.querySelectorAll(".cb:checked");
+if(checkedBoxes.length === 0) return alert("請至少選擇一個選項！");
+checkedBoxes.forEach(c=>ans.push(c.value));
+}
+
+db.ref('responses').push(ans).then(() => {
+    alert("🎉 提交成功！");
+    
+    if(currentTask.type==="text"){
+        document.getElementById("student_essay").value = "";
+    } else if(currentTask.type==="single"){
+        const r=document.querySelector('input[type=radio]:checked');
+        if(r) r.checked = false;
+    } else {
+        document.querySelectorAll(".cb:checked").forEach(c=>c.checked = false);
+    }
+}).catch(err => {
+    alert("儲存失敗，請檢查網路連線：" + err.message);
+});
+}
+</script>
+
+</body>
+</html>
